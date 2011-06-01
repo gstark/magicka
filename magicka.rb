@@ -22,7 +22,7 @@ class Magicka
   end
 
   def replacement_for_last_elements
-    pair = [@new_elements[-2],@new_elements[-1]].map(&:to_s).sort
+    pair = [@new_elements[-2], @new_elements[-1]].compact.sort
 
     found_base_element = @base_elements.detect { |base_element| base_element[:source] == pair } || {}
 
