@@ -2,7 +2,7 @@ class Magicka
   def initialize(config_string)
     string_components = config_string.split
 
-    @base_elements    = []
+    @base_elements    = {}
     @opposed_elements = []
 
     string_components.shift.to_i.times do
@@ -11,7 +11,7 @@ class Magicka
       source  = base_element_triplet[0..1].sort
       replace = base_element_triplet[2]
 
-      @base_elements << { :source => source, :replace => replace }
+      @base_elements[source] = replace
     end
 
     string_components.shift.to_i.times do
@@ -24,9 +24,7 @@ class Magicka
   def replacement_for_last_elements
     pair = [@new_elements[-2], @new_elements[-1]].compact.sort
 
-    found_base_element = @base_elements.detect { |base_element| base_element[:source] == pair } || {}
-
-    found_base_element[:replace]
+    @base_elements[pair]
   end
 
   def has_opposed_elements?
