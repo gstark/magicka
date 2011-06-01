@@ -6,10 +6,10 @@ class Magicka
     @opposed_elements = []
 
     string_components.shift.to_i.times do
-      base_element_triplet = string_components.shift
+      base_element_triplet = string_components.shift.split(//)
 
-      source  = base_element_triplet[0..1].split(//).sort
-      replace = base_element_triplet[2..2]
+      source  = base_element_triplet[0..1].sort
+      replace = base_element_triplet[2]
 
       @base_elements << { :source => source, :replace => replace }
     end
@@ -18,13 +18,10 @@ class Magicka
       @opposed_elements << string_components.shift.split(//)      
     end
 
-    # We don't need the number of elements
-    string_components.shift
-
-    @elements = string_components.first.split(//)
+    @elements = string_components.last.split(//)
   end
 
-  def replacement_for_last_pair
+  def replacement_for_last_elements
     pair = [@new_elements[-2],@new_elements[-1]].map(&:to_s).sort
 
     found_base_element = @base_elements.detect { |base_element| base_element[:source] == pair } || {}
@@ -33,11 +30,7 @@ class Magicka
   end
 
   def has_opposed_elements?
-    @opposed_elements.any? do |opposed_element|
-      elements = @new_elements.dup
-
-      elements.delete(opposed_element[0]) && elements.delete(opposed_element[1])
-    end
+    @opposed_elements.any? { |opposed_element| @new_elements.include?(opposed_element[0]) && @new_elements.include?(opposed_element[1]) }
   end
 
   def process
@@ -45,22 +38,22 @@ class Magicka
 
     @elements.each do |element|
       @new_elements << element
+      pre_elements_length = @new_elements.length
 
-      replaced = false
-      while replacement = replacement_for_last_pair
+      while replacement = replacement_for_last_elements
         @new_elements.pop(2)
         @new_elements << replacement
-        replaced = true
       end
 
-      next if replaced
+      next if @new_elements.length < pre_elements_length
 
       @new_elements.clear if has_opposed_elements?
     end
   end
 
   def resulting_elements
-    @new_elements = ["[", @new_elements.join(", "), "]"].join
+    @new_elements = "[#{@new_elements.join(", ")}]"
+    # @new_elements = ["[", @new_elements.join(", "), "]"].join
   end
 end
 
